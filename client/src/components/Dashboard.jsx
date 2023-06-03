@@ -12,7 +12,7 @@ const Dashboard = () => {
       {user.admin && (
         <p>{"Ah! You're an admin!"}</p>
       )}
-      <Button onClick={logout}>Logout</Button>
+      <Button data-cy="logout-button" onClick={logout}>Logout</Button>
       <div className="posts">
         <Posts/>
       </div>

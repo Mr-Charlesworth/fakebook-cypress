@@ -49,7 +49,7 @@ const SignupForm = () => {
       {({ values, isValid, handleSubmit, isSubmitting, errors, }) => (
         <Form>
           {error && (
-            <Alert variant="danger">{error}</Alert>
+            <Alert data-cy="signup-error" variant="danger">{error}</Alert>
           )}
           <h3>Sign up for a new account</h3>
           <FormTextField
