@@ -1,21 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../toolkit/Button";
 
 
 const NotLoggedIn = () => {
 
+  const navigate = useNavigate();
+
   return (
     <div className="mt-2">
-      <Link to={"/login"}>
-        <Button>
+        <Button data-cy="login-button" onClick={() => navigate('/login')}>
           Login
         </Button>
-      </Link>
-      <Link to={"/signup"}>
-        <Button>
+        <Button data-cy="signup-button" onClick={() => navigate('/signup')}>
           Sign Up
         </Button>
-      </Link>
     </div>
   )
 };

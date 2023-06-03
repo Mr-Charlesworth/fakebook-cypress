@@ -2,7 +2,7 @@ package com.example.security.resources;
 
 import com.example.security.domain.dto.ResultResponseDto;
 import com.example.security.repository.PostRepository;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import com.example.security.repository.UserRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +16,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestResource {
 
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
-    public TestResource(PostRepository postRepository) {
+    public TestResource(PostRepository postRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
+        this.userRepository = userRepository;
     }
 
     @DeleteMapping("/posts")
     public ResponseEntity<ResultResponseDto> clearPosts() {
         postRepository.deleteAll();
+        return new ResponseEntity<>(new ResultResponseDto("Done"), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/users")
+    public ResponseEntity<ResultResponseDto> resetUsers() {
+        userRepository.deleteAll();
         return new ResponseEntity<>(new ResultResponseDto("Done"), HttpStatus.OK);
     }
 }

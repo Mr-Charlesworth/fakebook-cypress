@@ -21,14 +21,4 @@ public class SecurityApplication {
         SpringApplication.run(SecurityApplication.class, args);
     }
 
-    @Bean
-    @Profile("test")
-    CommandLineRunner commandLineRunner(UserRepository userRepository, PasswordEncoder encoder) {
-        return args -> {
-            userRepository.save(new User("user", encoder.encode("password"), "ROLE_USER"));
-            userRepository.save(new User("admin", encoder.encode("password"), "ROLE_ADMIN,ROLE_USER"));
-            userRepository.save(new User("anon", encoder.encode("password"), ""));
-        };
-    }
-
 }

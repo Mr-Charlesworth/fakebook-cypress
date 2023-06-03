@@ -65,7 +65,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .requestMatchers("/error**").permitAll()
                 .requestMatchers("/api/auth/signup").permitAll()
-                .requestMatchers("/api/test**").permitAll()
+                .requestMatchers("/api/test/**").permitAll()
                 .anyRequest().authenticated().and()
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

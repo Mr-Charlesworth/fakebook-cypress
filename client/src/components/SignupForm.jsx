@@ -17,66 +17,70 @@ const SignupForm = () => {
     setSubmitting(true);
     setError(undefined)
     client.signup(values)
-        .then(({ data }) => {
-          setToken(data.token);
-          setUser(data.user);
-          setIsLoggedIn(true);
-          setSubmitting(false);
-          navigate("/");
-        })
-        .catch((error) => {
-          const reason = error.response.data.message;
-          setError(reason);
-          setSubmitting(false);
-        })
+      .then(({ data }) => {
+        setToken(data.token);
+        setUser(data.user);
+        setIsLoggedIn(true);
+        setSubmitting(false);
+        navigate("/");
+      })
+      .catch((error) => {
+        console.log(error)
+        const reason = error.response.data.message;
+        setError(reason);
+        setSubmitting(false);
+      })
   }
 
   return (
-      <Formik
-          initialValues={{
-            username: "",
-            password: "",
-          }}
-          validationSchema={Yup.object().shape({
-            username: Yup.string()
-                .required("Username is required"),
-            password: Yup.string()
-                .required("Password is required")
-                .min(8, "Must be at least 8 characters"),
-          })}
-          onSubmit={(values, { setSubmitting }) => handleSubmit(values, setSubmitting)}>
-        {({ values, isValid, handleSubmit, isSubmitting, errors, }) => (
-            <Form>
-              {error && (
-                  <Alert variant="danger">{error}</Alert>
-              )}
-              <h3>Sign up for a new account</h3>
-              <FormTextField
-                  label="Name"
-                  type="text"
-                  name="username"
-                  isInvalid={!!errors.name}
-                  feedback={errors.name}
-              />
-              <FormTextField
-                  label="Password"
-                  type="password"
-                  name="password"
-                  isInvalid={!!errors.password}
-                  feedback={errors.password}
-              />
-              <Button
-                  className="smallTopMargin"
-                  disabled={!isValid || isSubmitting}
-                  variant="success"
-                  as="input"
-                  size="lg"
-                  type="submit"
-                  value="Sign Up"
-              />
-            </Form>
-        )}
-      </Formik>
+    <Formik
+      initialValues={{
+        username: "",
+        password: "",
+      }}
+      validationSchema={Yup.object().shape({
+        username: Yup.string()
+          .required("Username is required"),
+        password: Yup.string()
+          .required("Password is required")
+          .min(8, "Must be at least 8 characters"),
+      })}
+      onSubmit={(values, { setSubmitting }) => handleSubmit(values, setSubmitting)}>
+      {({ values, isValid, handleSubmit, isSubmitting, errors, }) => (
+        <Form>
+          {error && (
+            <Alert variant="danger">{error}</Alert>
+          )}
+          <h3>Sign up for a new account</h3>
+          <FormTextField
+            data-cy="input-username"
+            label="Username"
+            type="text"
+            name="username"
+            isInvalid={!!errors.name}
+            feedback={errors.name}
+          />
+          <FormTextField
+            data-cy="input-password"
+            label="Password"
+            type="password"
+            name="password"
+            isInvalid={!!errors.password}
+            feedback={errors.password}
+          />
+          <Button
+            className="smallTopMargin"
+            data-cy="submit-button"
+            disabled={!isValid || isSubmitting}
+            variant="success"
+            as="input"
+            size="lg"
+            type="submit"
+            value="Sign Up"
+          />
+        </Form>
+      )}
+    </Formik>
   );
 };
 
