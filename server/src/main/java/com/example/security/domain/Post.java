@@ -2,7 +2,6 @@ package com.example.security.domain;
 
 import com.example.security.domain.dto.PostDto;
 import jakarta.persistence.*;
-import org.springframework.security.core.parameters.P;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -80,7 +79,7 @@ public class Post {
         this.likingUsers = likingUsers;
     }
 
-    public PostDto toDto() {
+    public PostDto dto() {
         PostDto postDto = new PostDto();
         postDto.setId(this.id);
         postDto.setContent(this.content);

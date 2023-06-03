@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -21,6 +22,7 @@ public class SecurityApplication {
     }
 
     @Bean
+    @Profile("test")
     CommandLineRunner commandLineRunner(UserRepository userRepository, PasswordEncoder encoder) {
         return args -> {
             userRepository.save(new User("user", encoder.encode("password"), "ROLE_USER"));

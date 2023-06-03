@@ -1,14 +1,17 @@
 package com.example.security.service;
 
+import com.example.security.domain.SecurityUser;
 import com.example.security.domain.User;
+import com.example.security.domain.dto.AuthSuccessDTO;
+import com.example.security.domain.dto.SignupDto;
 import com.example.security.repository.UserRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -17,44 +20,38 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final TokenService tokenService;
+  private final JpaUserDetailsService jpaUserDetailsService;
 
   public static final String ADMIN_ROLE = "ROLE_ADMIN";
+  public static final String USER_ROLE = "ROLE_USER";
 
-  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService, JpaUserDetailsService jpaUserDetailsService) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
-  }
-
-  private User mapUserNoId(Map<String, Object> userJson) {
-    String username = (String) userJson.getOrDefault("username", "");
-    String password = (String) userJson.getOrDefault("password", "");
-    User user = new User();
-    user.setUsername(username);
-    user.setPassword(password);
-    return user;
+    this.tokenService = tokenService;
+    this.jpaUserDetailsService = jpaUserDetailsService;
   }
 
   public Optional<User> findByUsername(String username) {
     return userRepository.findUserByUsername(username);
   }
 
-  private void validateNewUser(User newUser) {
-    if (newUser.getUsername().isEmpty() || newUser.getPassword().isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing username or password");
-    }
-    if (userRepository.existsUserByUsername(newUser.getUsername())) {
+  public AuthSuccessDTO signup(SignupDto userJson) {
+    if (userRepository.existsUserByUsername(userJson.getUsername())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username not available");
     }
-    if (newUser.getPassword().length() < 8) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 8 characters");
-    }
+    User user = new User(userJson.getUsername(), passwordEncoder.encode(userJson.getPassword()), USER_ROLE);
+    userRepository.save(user);
+    SecurityUser securityUser = (SecurityUser) jpaUserDetailsService.loadUserByUsername(user.getUsername());
+    String token = tokenService.generateToken(securityUser);
+    return new AuthSuccessDTO(token, securityUser.getUser().toDto());
   }
 
-  public User signup(Map<String, Object> userJson) {
-    User mappedUser = mapUserNoId(userJson);
-    validateNewUser(mappedUser);
-    mappedUser.setPassword(passwordEncoder.encode(mappedUser.getPassword()));
-    mappedUser.setRoles("ROLE_USER");
-    return userRepository.save(mappedUser);
+  public AuthSuccessDTO login(Authentication authentication) {
+    String token = tokenService.generateToken(authentication);
+    User user = userRepository.findUserByUsername(authentication.getName())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    return new AuthSuccessDTO(token, user.toDto());
   }
 }

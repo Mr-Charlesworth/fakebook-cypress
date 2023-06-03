@@ -1,6 +1,7 @@
 package com.example.security.domain.dto;
 
 import com.example.security.domain.Post;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -10,8 +11,10 @@ public class PostDto {
 
     private Integer id;
 
+    @NotEmpty(message = "Title required")
     private String title;
 
+    @NotEmpty(message = "Content required")
     private String content;
 
     private Long timeCreated;

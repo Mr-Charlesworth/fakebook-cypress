@@ -1,17 +1,17 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import axios from "axios";
+import { isEmpty } from "lodash";
 
 import App from "./App";
 import AppContext from "./context";
-import {isEmpty} from "lodash";
-import { useNavigate } from "react-router-dom";
 
 const AxiosClient = () => {
   const baseUrl =
-      !process.env.NODE_ENV || process.env.NODE_ENV === "development"
-          ? "http://localhost:8080/api"
-          : "";
+    !process.env.NODE_ENV || process.env.NODE_ENV === "development"
+      ? "http://localhost:8080/api"
+      : "";
 
   const [token, setToken] = useState(undefined);
   const [user, setUser] = useState(undefined);
@@ -25,50 +25,54 @@ const AxiosClient = () => {
     navigate("/")
   }
 
-  const apiCall = (method, url, data, rest = {}) => {
-    return axios({
-      method,
-      url: `${baseUrl}${url}`,
-      data,
-      headers: {
-        authorization: !isEmpty(token) ? `Bearer ${token}` : null,
-      },
-      ...rest,
-    }).catch((error) => {
-      throw error;
-    });
-  };
+  const apiCall = ({ method, url, data, ...rest }) => axios({
+    method,
+    url: `${baseUrl}${url}`,
+    data,
+    headers: {
+      authorization: !isEmpty(token) ? `Bearer ${token}` : null,
+    },
+    ...rest,
+  });
 
-  const login = ({ username, password }) => {
-    return apiCall("post", "/auth/login", {}, { auth: { username, password } });
-  };
+  const login = ({ username, password }) => apiCall({
+    method: 'post',
+    url: "/auth/login",
+    auth: { username, password },
+  });
 
-  const signup = (signupFormValues) => {
-    return apiCall("post", "/auth/signup", signupFormValues)
-  };
+  const signup = (signupFormValues) => apiCall({
+    method: 'post',
+    url: '/auth/signup',
+    data: signupFormValues,
+  });
 
-  const getPosts = () => {
-    return apiCall("get", "/posts")
-      .then(({ data }) => new Promise((resolve) => {
-        setPosts(data);
-        resolve();
-      }));
-  }
+  const getPosts = () => apiCall({
+    method: 'get',
+    url: '/posts',
+  }).then(({ data }) => new Promise((resolve) => {
+    setPosts(data);
+    resolve();
+  }));
 
-  const createPost = (postFormValues) => {
-    return apiCall("post", "/posts/create", postFormValues)
-      .then(() => getPosts());
-  }
+  const createPost = (postFormValues) => apiCall({
+    method: 'post',
+    url: '/posts/create',
+    data: postFormValues,
+  }).then(() => getPosts());
 
-  const deletePost = (postId) => {
-    return apiCall("delete", `/posts/delete/${postId}`)
-      .then(() => getPosts());
-  }
 
-  const likePost = (postId) => {
-    return apiCall("post", `/posts/like/${postId}`)
-      .then(() => getPosts());
-  }
+  const deletePost = (postId) => apiCall({
+    method: 'delete',
+    url: `/posts/${postId}`
+  }).then(() => getPosts());
+
+
+  const likePost = (postId) => apiCall({
+    method: 'post',
+    url: `/posts/${postId}/like`,
+  }).then(() => getPosts());
+
 
   const client = {
     apiCall,
@@ -81,22 +85,22 @@ const AxiosClient = () => {
   };
 
   return (
-      <AppContext.Provider
-        value={{
-          client,
-          token,
-          setToken,
-          isLoggedIn,
-          setIsLoggedIn,
-          user,
-          setUser,
-          posts,
-          setPosts,
-          logout,
-        }}
-      >
-        <App/>
-      </AppContext.Provider>
+    <AppContext.Provider
+      value={{
+        client,
+        token,
+        setToken,
+        isLoggedIn,
+        setIsLoggedIn,
+        user,
+        setUser,
+        posts,
+        setPosts,
+        logout,
+      }}
+    >
+      <App/>
+    </AppContext.Provider>
   );
 };
 

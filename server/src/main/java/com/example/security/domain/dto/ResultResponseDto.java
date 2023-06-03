@@ -1,10 +1,10 @@
-package com.example.security.resources;
+package com.example.security.domain.dto;
 
-public class ResultResponse {
+public class ResultResponseDto {
 
     private String result;
 
-    public ResultResponse(String result) {
+    public ResultResponseDto(String result) {
         this.result = result;
     }
 
